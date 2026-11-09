@@ -66,7 +66,12 @@
         playerTimer = setTimeout(function () {
             playerTimer = null;
             if (!current(token) || watchedRequest !== requestId) { return; }
-            error(preparing ? 'YouTube no confirmó que el reproductor esté listo.' : 'YouTube no confirmó la reproducción del canal.', 0);
+            if (preparing) { error('YouTube no confirmó que el reproductor esté listo.', 0); }
+            else {
+                // Ads and buffering can outlast this diagnostic interval. They are
+                // controlled by YouTube; never classify them as playback failures.
+                emit('waiting', { message: 'YouTube todavía no confirmó la señal. Esperando la reproducción…' });
+            }
         }, 20000);
     }
     function close(reason) {
